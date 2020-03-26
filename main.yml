@@ -60,22 +60,10 @@
         state: present
       become: yes
   
-    - name: clone RedHatDemos/SecurityDemos repo
+    - name: clone agnosticd repo
       git:
-        repo: https://github.com/RedHatDemos/SecurityDemos.git
-        dest: ~/aws/testrun/SecurityDemos
-        clone: yes
-  
-    - name: clone ajacocks/agnosticd repo
-      git:
-        repo: https://github.com/ajacocks/agnosticd.git
-        dest: ~/aws/testrun/agnosticd
-
-    - name: create symbolic link to ansible deployer directory
-      file:
-        src: ~/aws/testrun/SecurityDemos/2020Labs/RHELSecurity/ansible/agnosticd
-        dest: ~/aws/testrun/agnosticd.old
-        state: link
+        repo: "https://github.com/{{ agnosticd_fork }}/agnosticd.git"
+        dest: ~/agnosticd
 
     - name: install required python modules
       pip:
@@ -143,10 +131,18 @@
         dest: ~/aws/myconfigs/sample_vars-selinux.yml
         mode: 0644
 
+    - name: create deployment template for RHEL Custom Security Content workshop
+      template:
+        src: sample_vars-rhel-custom-security-content.j2
+        dest: ~/aws/myconfigs/sample_vars-rhel-custom-security-content.yml
+        mode: 0644
+
     - name: copy ssh key for login
       authorized_key:
         user: "{{ ansible_user }}"
         state: present
         key: "{{ lookup('file', ssh_key_file_public ) }}"
 
+    - name: Deploy lab using agnosticd (This task takes up to 40 minutes)
+      shell: "bash ~/run.sh rhel-custom-security-content"
 ...

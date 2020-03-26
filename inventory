@@ -19,5 +19,4 @@ ansible_connection=ssh
 ansible_user=
 ansible_password=
 
-# agnosticd_fork=redhat-cop
-agnosticd_fork=ggbecker
+agnosticd_fork=redhat-cop
