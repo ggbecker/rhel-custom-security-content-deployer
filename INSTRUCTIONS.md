@@ -1,4 +1,4 @@
-This playbook provisions the RHEL 7.x bastion host, and pulls down the required tools and git repositiories, and pre-configures the variable files that are used by the agnisticd deployer to create the RHEL 8 hosts.
+This playbook provisions the RHEL 7.x bastion host, and pulls down the required tools and git repositiories, pre-configures the variable files that are used by the agnosticd deployer to create the RHEL 8 hosts, and deploy the Custom Security Content lab+documentation.
 
 **NOTE: The AWS keys in this document aren't valid (randomly typed characters!), so don't try to use them**
 
@@ -37,25 +37,24 @@ Instructions:
     # put the DNS domain here, not including any leading or trailing periods
     dns_domain=sandbox744.opentlc.com
     # put the AWS region, that you wish to deploy on, here
-    region=us-east-1
+    region=eu-central-1
     # put your email address here
-    email=alexander@redhat.com
-    # put your guid (your *nix user name, no special characters), here
-    guid=ajacocks
+    email=userid@redhat.com
+    # put your guid (your *n ix user name, no special characters), here
+    guid=userid
     ansible_connection=ssh
-    # put the user and password, from OpenTLC CloudForms, here
-    ansible_user=generic_naps_ajacocks
+    # put the user and password, from OpenTLC CloudForms, here (the SSH password you got from the email after ordering the environment)
+    ansible_user=userid-redhat.com
     ansible_password=CCCCCCCCCCCC```
 
-3. Run the playbook, to configure the bastion host:
+3. Run the playbook, to deploy the RHEL Custom Security Content Lab. It will ask for the password you use to login into opentlc or rhpds site (to the OpenShift cluster):
    
     ```$ ansible-playbook main.yml```
 
-4. Once the provisioning completes, login to the bastion host, as directed by the OpenTLC variables:
-   
-    ```$ ssh generic_naps_ajacocks@bastion.3724.sandbox744.opentlc.com```
+    The last task in this playbook is to print the link to access the lab documentation (in bookbag format), it looks something like this:
 
-5. Change directories to **~/aws/testrun/agnosticd/ansible** and execute the playbook, to build the RHEL 8 hosts:
-   
-    ```$ ansible-playbook main.yml -e @~/aws/myconfigs/sample_vars.yml -e @~/.aws/opentlc_creds.yml```
+    ```bookbag-userid-redhat-com.apps.cluster-rhsummit-dev.rhsummit-dev.events.opentlc.com```
 
+4. To destroy the environment run the following:
+
+    ```$ ansible-playbook main.yml -e destroy_lab=true```
