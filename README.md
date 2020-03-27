@@ -49,12 +49,12 @@ Instructions:
 
 3. Run the playbook, to deploy the RHEL Custom Security Content Lab. It will ask for the password you use to login into opentlc or rhpds site (to the OpenShift cluster):
    
-    ```$ ansible-playbook --ssh-extra-args "-F ssh_config" main.yml```
+    ```$ ./run.sh```
 
-    The last task in this playbook is to print the link to access the lab documentation (in bookbag format), it looks something like this:
+    The last task is to print the link to access the lab documentation (in bookbag format), it looks something like this:
 
     ```bookbag-userid-redhat-com.apps.cluster-rhsummit-dev.rhsummit-dev.events.opentlc.com```
 
 4. To destroy the environment run the following:
 
-    ```$ ansible-playbook --ssh-extra-args "-F ssh_config" -e destroy_lab=true main.yml```
+    ```$ ./destroy.sh```
