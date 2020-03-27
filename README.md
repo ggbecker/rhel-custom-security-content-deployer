@@ -10,7 +10,7 @@ Instructions:
     Your AWS programmatic access:
     aws_access_key_id = AAAAAAAAAAAAAAAAAAAA
     aws_secret_access_key = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    SSH Access: ssh generic_naps_ajacocks@bastion.3724.sandbox744.opentlc.com
+    SSH Access: ssh userid-redhat.com@bastion.3724.sandbox744.opentlc.com
     SSH password: CCCCCCCCCCCC
     GUID 	3724
     account 	sandboxes-gpte
@@ -49,7 +49,7 @@ Instructions:
 
 3. Run the playbook, to deploy the RHEL Custom Security Content Lab. It will ask for the password you use to login into opentlc or rhpds site (to the OpenShift cluster):
    
-    ```$ ansible-playbook main.yml```
+    ```$ ansible-playbook --ssh-extra-args "-F ssh_config" main.yml```
 
     The last task in this playbook is to print the link to access the lab documentation (in bookbag format), it looks something like this:
 
@@ -57,4 +57,4 @@ Instructions:
 
 4. To destroy the environment run the following:
 
-    ```$ ansible-playbook main.yml -e destroy_lab=true```
+    ```$ ansible-playbook --ssh-extra-args "-F ssh_config" -e destroy_lab=true main.yml```

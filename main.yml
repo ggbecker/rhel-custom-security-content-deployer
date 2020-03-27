@@ -253,7 +253,7 @@
       when: destroy_lab is not defined
 
     - name: Get route to bookbag
-      command: "oc get route bookbag --template='{{ .spec.host }}'"
+      command: "oc get route bookbag --template='{{ '{{' }} .spec.host {{ '}}' }}'"
       args:
         chdir: ~/rhel-custom-security-content
       register: output_results
