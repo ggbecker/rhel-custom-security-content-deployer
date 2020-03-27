@@ -7,7 +7,7 @@ bastion.[some_number].sandbox[some_number].opentlc.com
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 # put the DNS domain here, not including any leading or trailing periods
-dns_domain=sandbox[some_number}.opentlc.com
+dns_domain=sandbox[some_number].opentlc.com
 # put the AWS region, that you wish to deploy on, here
 region=us-east-1
 # put your email address here
