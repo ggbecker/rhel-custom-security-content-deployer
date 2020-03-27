@@ -45,7 +45,10 @@ Instructions:
     ansible_connection=ssh
     # put the user and password, from OpenTLC CloudForms, here (the SSH password you got from the email after ordering the environment)
     ansible_user=userid-redhat.com
-    ansible_password=CCCCCCCCCCCC```
+    ansible_password=CCCCCCCCCCCC
+    # the repository containing the rhel-custom-security-content config
+    agnosticd_fork=redhat-cop
+    ```
 
 3. Run the playbook, to deploy the RHEL Custom Security Content Lab. It will ask for the password you use to login into opentlc or rhpds site (to the OpenShift cluster):
    
