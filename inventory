@@ -8,8 +8,10 @@ AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 # put the DNS domain here, not including any leading or trailing periods
 dns_domain=sandbox[some_number].opentlc.com
-# put the AWS region, that you wish to deploy on, here
-region=us-east-1
+# put the AWS region, that you wish to deploy on, here (select the closest region to your location)
+region=eu-central-1
+#region=us-east-1
+#region=us-west-1
 # put your email address here
 email=[you]@redhat.com
 # put your guid (your *nix user name, no special characters), here
