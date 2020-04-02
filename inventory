@@ -21,6 +21,6 @@ ansible_connection=ssh
 ansible_user=
 ansible_password=
 
-# For now we need to point to a custom for since https://github.com/redhat-cop/agnosticd/pull/1394 is not merged yet
-agnosticd_fork=ggbecker
-#agnosticd_fork=redhat-cop
+# official repo containing the agnosticd code for the deployment
+# you don't need to change this parameter
+agnosticd_fork=redhat-cop
