@@ -6,6 +6,7 @@
   vars_prompt:
     - name: openshift_password
       prompt: "Type your OpenShift password to the dev cluster (same password you use to login to the website, it will not be recorded)"
+      private: yes
 
   tasks:
     - set_fact: workshop="rhel-custom-security-content"
@@ -218,6 +219,7 @@
       args:
         chdir: "~/{{ workshop }}"
       when: destroy_lab is not defined
+      no_log: True
 
     - name: Change oc project
       command: "oc project user-{{ ansible_user | replace('.','-') }}"
