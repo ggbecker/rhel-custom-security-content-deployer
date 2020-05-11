@@ -46,13 +46,17 @@ Instructions:
     # put the user and password, from OpenTLC CloudForms, here (the SSH password you got from the email after ordering the environment)
     ansible_user=userid-redhat.com
     ansible_password=CCCCCCCCCCCC
-    # the repository containing the rhel-custom-security-content config
+    # the repository containing the rhel-custom-security-content or rhel-security config
     agnosticd_fork=redhat-cop
     ```
 
 3. Run the playbook, to deploy the RHEL Custom Security Content Lab. It will ask for the password you use to login into opentlc or rhpds site (to the OpenShift cluster):
    
     ```$ ./run.sh```
+
+    To deploy RHEL Security Lab, run:
+
+    ```$ ./run_rhel-security.sh```
 
     The last task is to print the link to access the lab documentation (in bookbag format), it looks something like this:
 
@@ -61,3 +65,7 @@ Instructions:
 4. To destroy the environment run the following:
 
     ```$ ./destroy.sh```
+
+    To destroy RHEL Security Lab, run:
+
+    ```$ ./destroy_rhel-security.sh```
