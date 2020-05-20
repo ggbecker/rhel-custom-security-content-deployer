@@ -1,4 +1,4 @@
-This playbook provisions the RHEL 7.x bastion host, and pulls down the required tools and git repositiories, pre-configures the variable files that are used by the agnosticd deployer to create the RHEL 8 hosts, and deploy the Custom Security Content lab+documentation.
+This playbook provisions the RHEL 7.x bastion host, and pulls down the required tools and git repositiories, pre-configures the variable files that are used by the agnosticd deployer to create the RHEL 8 hosts, and deploy the Custom Security Content lab or RHEL Security lab. The bookbag documentation is deployed through docker, so docker is required to complete the deployment.
 
 **NOTE: The AWS keys in this document aren't valid (randomly typed characters!), so don't try to use them**
 
@@ -46,18 +46,37 @@ Instructions:
     # put the user and password, from OpenTLC CloudForms, here (the SSH password you got from the email after ordering the environment)
     ansible_user=userid-redhat.com
     ansible_password=CCCCCCCCCCCC
-    # the repository containing the rhel-custom-security-content config
+    # the repository containing the rhel-custom-security-content or rhel-security config
     agnosticd_fork=redhat-cop
+    agnosticd_branch=development
     ```
 
-3. Run the playbook, to deploy the RHEL Custom Security Content Lab. It will ask for the password you use to login into opentlc or rhpds site (to the OpenShift cluster):
+3. Run the playbook, to deploy the RHEL Custom Security Content Lab:
    
     ```$ ./run.sh```
 
-    The last task is to print the link to access the lab documentation (in bookbag format), it looks something like this:
+    To deploy RHEL Security Lab, run:
 
-    ```bookbag-userid-redhat-com.apps.cluster-rhsummit-dev.rhsummit-dev.events.opentlc.com```
+    ```$ ./run_rhel-security.sh```
+
+    The last task prints the address where the documentation can be accessed:
+
+    ```http://localhost:10080```
 
 4. To destroy the environment run the following:
 
     ```$ ./destroy.sh```
+
+    To destroy RHEL Security Lab, run:
+
+    ```$ ./destroy_rhel-security.sh```
+
+5. To refresh only the documentation, after a change is made in the local repository clone by the playbooks run the following:
+
+    ```$ ./refresh_documentation.sh```
+
+    To destroy RHEL Security Lab, run:
+
+    ```$ ./refresh_documentation_rhel-security.sh```
+
+Feel free to modify the main.yml playbook according your needs. But it should work for the general use case.
