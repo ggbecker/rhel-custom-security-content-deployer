@@ -24,4 +24,6 @@ ansible_password=
 # official repo containing the agnosticd code for the deployment
 # you don't need to change this parameter unless the code is not part of the official labs repo yet
 # usual forks are: ajacocks,ggbecker,redhat-cop(official fork)
-agnosticd_fork=redhat-cop
+agnosticd_fork=ggbecker
+# which branch should be fetched, usually development
+agnosticd_branch=improve-rhel-security-lab

@@ -3,10 +3,6 @@
   vars:
     ssh_key_file_public: "~/.ssh/id_rsa-{{ dns_domain }}.pub"
     ssh_key_file_private: "~/.ssh/id_rsa-{{ dns_domain }}"
-  vars_prompt:
-    - name: openshift_password
-      prompt: "Type your OpenShift password to the dev cluster (same password you use to login to the website, it will not be recorded)"
-      private: yes
 
   tasks:
     - set_fact: workshop="rhel-custom-security-content"
@@ -73,7 +69,8 @@
   
     - name: clone agnosticd repo
       git:
-        repo: "https://github.com/{{ agnosticd_fork }}/agnosticd.git"
+        repo: "https://github.com/{{ agnosticd_fork | d('redhat-cop') }}/agnosticd.git"
+        version: "{{ agnosticd_branch | d('development') }}"
         dest: ~/agnosticd
 
     - name: install required python modules
@@ -157,30 +154,40 @@
     - name: Fetch user-data.yml
       fetch:
         src: "{{ output_dir }}/user-data.yaml"
-        dest: /tmp/user-data-{{ inventory_hostname }}.yaml
+        dest: /tmp/user-data-{{ workshop }}.yaml
         flat: yes
       tags:
-        - deploy-bookbag
+        - deploy-lab
       when: destroy_lab is not defined
 
+
+- hosts: localhost
+  tasks:
     - name: Import variables from user-data.yml
       include_vars:
-        file: /tmp/user-data-{{ inventory_hostname }}.yaml
+        file: /tmp/user-data-{{ workshop }}.yaml
       tags:
         - deploy-bookbag
       when: destroy_lab is not defined
 
-    - name: clone {{ workshop }} documentation repo
+    - name: "clone {{ workshop }} documentation repo"
       git:
         repo: "https://gitlab.com/2020-summit-labs/{{ workshop }}.git"
-        dest: "~/{{ workshop }}"
+        dest: "{{ workshop }}"
+      tags:
+        - deploy-bookbag
+      when: destroy_lab is not defined
+      ignore_errors: yes
+
+    - debug:
+        msg: "You can use this git repository to make changes to the documentation. Location: ./{{ workshop }}"
       tags:
         - deploy-bookbag
       when: destroy_lab is not defined
 
     - name: delete workshop-vars.js
       file:
-        path: "~/{{ workshop }}/workshop-vars-{{ workshop }}.js"
+        path: "/tmp/ansible_generated_{{ workshop }}/workshop-vars.js"
         state: absent
       tags:
         - deploy-bookbag
@@ -189,75 +196,67 @@
     - name: create workshop-vars.js template for Bookbag documentation
       template:
         src: "workshop-vars-{{ workshop }}.j2"
-        dest: "~/{{ workshop }}/workshop-vars.js"
+        dest: "/tmp/ansible_generated_{{ workshop }}/workshop-vars.js"
         mode: 0644
       tags:
         - deploy-bookbag
       when: destroy_lab is not defined
 
-    - name: Download oc cli
-      become: yes
-      get_url:
-        url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
-        dest: ~/openshift-client-linux.tar.gz
+    - name: Start docker service
+      service:
+        name: docker
+        state: started
       tags:
-        - setup-oc-cli
+        - deploy-bookbag
       when: destroy_lab is not defined
 
-    - name: Extract oc cli into ~/
-      become: yes
-      unarchive:
-        src: ~/openshift-client-linux.tar.gz
-        dest: /usr/local/bin
-        remote_src: yes
+    - name: build bookbag
+      command: "docker build -t {{ workshop }} ."
+      args:
+        chdir: "{{ workshop }}"
       tags:
-        - setup-oc-cli
+        - deploy-bookbag
       when: destroy_lab is not defined
 
-    - name: Login into dev cluster
-      command: "oc login --server=https://api.cluster-rhsummit-dev.rhsummit-dev.events.opentlc.com:6443 --password {{ openshift_password }} --username {{ ansible_user }} --insecure-skip-tls-verify=true"
+    - name: kill bookbag instance if any
+      shell: 'docker kill {{ item }}'
+      tags:
+        - destroy-bookbag
+        - deploy-bookbag
+      with_file: "/tmp/ansible_generated_{{ workshop }}/.container_id"
+      register: container_id
+      ignore_errors: True
+
+    - name: start bookbag documentation
+      shell: 'docker run -d -e WORKSHOP_VARS="`cat /tmp/ansible_generated_{{ workshop }}/workshop-vars.js`" --rm -p 10080:10080 {{ workshop }}'
       args:
-        chdir: "~/{{ workshop }}"
+        chdir: "{{ workshop }}"
+        executable: /bin/bash
+      tags:
+        - deploy-bookbag
       when: destroy_lab is not defined
-      no_log: True
+      register: container_id
 
-    - name: Change oc project
-      command: "oc project user-{{ ansible_user | replace('.','-') }}"
-      args:
-        chdir: "~/{{ workshop }}"
-      when: destroy_lab is not defined
+    - name: delete container id file
+      file:
+        path: "/tmp/ansible_generated_{{ workshop }}/.container_id"
+        state: absent
+      tags:
+        - deploy-bookbag
 
-    - name: prepare to build image from template
-      shell: 'oc process -f build-template.yaml -p GIT_REPO="https://gitlab.com/2020-summit-labs/{{ workshop }}.git" | oc apply -f -'
-      args:
-        chdir: "~/{{ workshop }}"
-      when: destroy_lab is not defined
-
-    - name: build image from template
-      command: "oc start-build bookbag --follow"
-      args:
-        chdir: "~/{{ workshop }}"
-      when: destroy_lab is not defined
-
-    - name: Change oc project
-      shell: 'oc process -f deploy-template.yaml NAME="bookbag" -p IMAGE_STREAM_NAME="bookbag" -p WORKSHOP_VARS="$(cat workshop-vars.js)" | oc apply -f -'
-      args:
-        chdir: "~/{{ workshop }}"
-      when: destroy_lab is not defined
-
-    - name: Get route to bookbag
-      command: "oc get route bookbag --template='{{ '{{' }} .spec.host {{ '}}' }}'"
-      args:
-        chdir: "~/{{ workshop }}"
-      register: output_results
-      when: destroy_lab is not defined
-
-    - name: Logout oc
-      command: 'oc logout'
+    - name: save container id
+      lineinfile:
+        path:  "/tmp/ansible_generated_{{ workshop }}/.container_id"
+        line: "{{ container_id.stdout }}"
+        create: yes
+      tags:
+        - deploy-bookbag
       when: destroy_lab is not defined
 
     - debug:
-        msg: "Use this link to access the documentation deployed containing all credentials to access the lab: {{ output_results.stdout }}"
+        msg: "Access the bookbag documentation on http://localhost:10080"
       when: destroy_lab is not defined
 
+    - debug:
+        msg: "Consider executing 'docker image prune' to purge all the unused built images"
 ...
