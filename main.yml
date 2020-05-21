@@ -193,6 +193,12 @@
         - deploy-bookbag
       when: destroy_lab is not defined
 
+    - name: Create target directory
+      file: path=/tmp/ansible_generated_{{ workshop }} state=directory mode=0755
+      tags:
+        - deploy-bookbag
+      when: destroy_lab is not defined
+
     - name: create workshop-vars.js template for Bookbag documentation
       template:
         src: "workshop-vars-{{ workshop }}.j2"
