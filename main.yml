@@ -73,6 +73,12 @@
         version: "{{ agnosticd_branch | d('development') }}"
         dest: ~/agnosticd
 
+    - name: upgrade pip to latest version
+      pip:
+        name: pip
+        state: latest
+      become: yes
+
     - name: install required python modules
       pip:
         name:
