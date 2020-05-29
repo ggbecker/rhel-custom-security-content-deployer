@@ -220,7 +220,7 @@
         state: started
       tags:
         - deploy-bookbag
-      when: destroy_lab is not defined
+      when: destroy_lab is not defined and ansible_distribution != 'MacOSX'
 
     - name: build bookbag
       command: "docker build -t {{ workshop }} ."
