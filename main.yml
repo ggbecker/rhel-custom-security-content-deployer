@@ -169,6 +169,9 @@
 
 - hosts: localhost
   tasks:
+    - set_fact: workshop="rhel-custom-security-content"
+      when: workshop is undefined
+
     - name: Import variables from user-data.yml
       include_vars:
         file: /tmp/user-data-{{ workshop }}.yaml
