@@ -270,8 +270,13 @@
 
     - debug:
         msg: "Access the bookbag documentation on http://localhost:10080"
+      tags:
+        - deploy-bookbag
       when: destroy_lab is not defined
 
     - debug:
-        msg: "Consider executing 'docker image prune' to purge all the unused built images"
+        msg: "Consider executing 'podman image prune' to purge all the unused built images"
+      tags:
+        - deploy-bookbag
+        - deploy-lab
 ...
