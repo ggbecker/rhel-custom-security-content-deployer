@@ -51,7 +51,15 @@ Instructions:
     agnosticd_branch=development
     ```
 
-3. Run the playbook, to deploy the RHEL Custom Security Content Lab:
+3. Install docker (or podman but then it requires some changes to main.yml)
+
+    ```$ yum install docker```
+
+    or
+
+    ```$ dnf install docker```
+
+4. Run the playbook, to deploy the RHEL Custom Security Content Lab:
    
     ```$ ./run.sh```
 
@@ -63,7 +71,7 @@ Instructions:
 
     ```http://localhost:10080```
 
-4. To destroy the environment run the following:
+5. To destroy the environment run the following:
 
     ```$ ./destroy.sh```
 
@@ -71,7 +79,7 @@ Instructions:
 
     ```$ ./destroy_rhel-security.sh```
 
-5. To refresh only the documentation, after a change is made in the local repository cloned by the playbooks run the following:
+6. To refresh only the documentation, after a change is made in the local repository cloned by the playbooks run the following:
 
     ```$ ./refresh_documentation.sh```
 
