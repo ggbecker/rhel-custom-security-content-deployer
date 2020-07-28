@@ -88,3 +88,11 @@ Instructions:
     ```$ ./refresh_documentation_rhel-security.sh```
 
 Feel free to modify the main.yml playbook according your needs. But it should work for the general use case.
+
+Note: If docker/podman fails to execute with `port already in use`, try killing the container using:
+
+```docker ps```
+
+Get the running container id you would like to kill and:
+
+```docker kill <container_id>```
