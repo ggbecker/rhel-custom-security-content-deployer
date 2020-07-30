@@ -51,7 +51,7 @@ Instructions:
     agnosticd_branch=development
     ```
 
-3. Install docker (or podman but then it requires some changes to main.yml)
+3. Install docker (or podman)
 
     ```$ yum install docker```
 
@@ -59,13 +59,13 @@ Instructions:
 
     ```$ dnf install docker```
 
-4. Run the playbook, to deploy the RHEL Custom Security Content Lab:
+4. Run the playbook, to deploy the RHEL Custom Security Content Lab (using docker, to use podman just use podman instead of docker):
    
-    ```$ ./run.sh```
+    ```$ ./run.sh docker```
 
     To deploy RHEL Security Lab, run:
 
-    ```$ ./run_rhel-security.sh```
+    ```$ ./run.sh docker rhel-security```
 
     The last task prints the address where the documentation can be accessed:
 
@@ -77,7 +77,7 @@ Instructions:
 
     To destroy RHEL Security Lab, run:
 
-    ```$ ./destroy_rhel-security.sh```
+    ```$ ./destroy.sh docker rhel-security```
 
 6. To refresh only the documentation, after a change is made in the local repository cloned by the playbooks run the following:
 
@@ -85,11 +85,11 @@ Instructions:
 
     To refresh RHEL Security Lab documentation, run:
 
-    ```$ ./refresh_documentation_rhel-security.sh```
+    ```$ ./refresh_documentation.sh docker rhel-security```
 
 Feel free to modify the main.yml playbook according your needs. But it should work for the general use case.
 
-Note: If docker/podman fails to execute with `port already in use`, try killing the container using:
+Note: If docker/podman fails to execute with `port already in use`, try killing the container using (analogous for podman):
 
 ```docker ps```
 
