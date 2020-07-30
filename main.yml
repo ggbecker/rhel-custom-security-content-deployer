@@ -169,6 +169,7 @@
 
 - hosts: localhost
   tasks:
+
     - set_fact: workshop="rhel-custom-security-content"
       when: workshop is undefined
 
@@ -217,40 +218,80 @@
         - deploy-bookbag
       when: destroy_lab is not defined
 
-    - name: Start docker service
-      service:
-        name: docker
-        state: started
-      tags:
-        - deploy-bookbag
-      when: destroy_lab is not defined and ansible_distribution != 'MacOSX'
+    - name: docker build
+      block:
+      - name: Start docker service
+        service:
+          name: docker
+          state: started
+        tags:
+          - deploy-bookbag
+        when: destroy_lab is not defined and ansible_distribution != 'MacOSX'
 
-    - name: build bookbag
-      command: "docker build -t {{ workshop }} ."
-      args:
-        chdir: "{{ workshop }}"
-      tags:
-        - deploy-bookbag
-      when: destroy_lab is not defined
+      - name: build bookbag (docker)
+        command: "docker build -t {{ workshop }} ."
+        args:
+          chdir: "{{ workshop }}"
+        tags:
+          - deploy-bookbag
+        when: destroy_lab is not defined and docker is defined
 
-    - name: kill bookbag instance if any
-      shell: 'docker kill {{ item }}'
-      tags:
-        - destroy-bookbag
-        - deploy-bookbag
-      with_file: "/tmp/ansible_generated_{{ workshop }}/.container_id"
-      register: container_id
-      ignore_errors: True
+      - name: kill bookbag instance if any (docker)
+        shell: 'docker kill {{ item }}'
+        tags:
+          - destroy-bookbag
+          - deploy-bookbag
+        with_file: "/tmp/ansible_generated_{{ workshop }}/.container_id"
+        register: container_id
+        ignore_errors: True
 
-    - name: start bookbag documentation
-      shell: 'docker run -d -e WORKSHOP_VARS="`cat /tmp/ansible_generated_{{ workshop }}/workshop-vars.js`" --rm -p 10080:10080 {{ workshop }}'
-      args:
-        chdir: "{{ workshop }}"
-        executable: /bin/bash
+      - name: start bookbag documentation (docker)
+        shell: 'docker run -d -e WORKSHOP_VARS="`cat /tmp/ansible_generated_{{ workshop }}/workshop-vars.js`" --rm -p 10080:10080 {{ workshop }}'
+        args:
+          chdir: "{{ workshop }}"
+          executable: /bin/bash
+        tags:
+          - deploy-bookbag
+        register: container_id
+        when: destroy_lab is not defined
+
+      when: docker is defined
+
+    - name: podman build
+      block:
+      - name: build bookbag (podman)
+        command: "buildah bud -t {{ workshop }} ."
+        args:
+          chdir: "{{ workshop }}"
+        tags:
+          - deploy-bookbag
+        when: destroy_lab is not defined
+
+      - name: kill bookbag instance if any (podman)
+        shell: 'podman kill {{ item }}'
+        tags:
+          - destroy-bookbag
+          - deploy-bookbag
+        with_file: "/tmp/ansible_generated_{{ workshop }}/.container_id"
+        register: container_id
+        ignore_errors: True
+
+      - name: start bookbag documentation (podman)
+        shell: 'podman run -d -e WORKSHOP_VARS="`cat /tmp/ansible_generated_{{ workshop }}/workshop-vars.js`" --rm -p 10080:10080 {{ workshop }}'
+        args:
+          chdir: "{{ workshop }}"
+          executable: /bin/bash
+        tags:
+          - deploy-bookbag
+        register: container_id
+        when: destroy_lab is not defined
+
+      when: podman is defined
+
+    - debug:
+        var: container_id
       tags:
         - deploy-bookbag
-      when: destroy_lab is not defined
-      register: container_id
 
     - name: delete container id file
       file:
@@ -275,8 +316,16 @@
       when: destroy_lab is not defined
 
     - debug:
+        msg: "Consider executing 'docker image prune' to purge all the unused built images"
+      tags:
+        - deploy-bookbag
+        - deploy-lab
+      when: docker is defined
+
+    - debug:
         msg: "Consider executing 'podman image prune' to purge all the unused built images"
       tags:
         - deploy-bookbag
         - deploy-lab
+      when: podman is defined
 ...
