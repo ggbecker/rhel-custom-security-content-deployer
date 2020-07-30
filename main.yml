@@ -242,7 +242,6 @@
           - destroy-bookbag
           - deploy-bookbag
         with_file: "/tmp/ansible_generated_{{ workshop }}/.container_id"
-        register: container_id
         ignore_errors: True
 
       - name: start bookbag documentation (docker)
@@ -252,7 +251,28 @@
           executable: /bin/bash
         tags:
           - deploy-bookbag
-        register: container_id
+        register: container_id_docker
+        when: destroy_lab is not defined
+
+      - debug:
+          var: container_id_docker
+        tags:
+          - deploy-bookbag
+
+      - name: delete container id file
+        file:
+          path: "/tmp/ansible_generated_{{ workshop }}/.container_id"
+          state: absent
+        tags:
+          - deploy-bookbag
+
+      - name: save container id
+        lineinfile:
+          path:  "/tmp/ansible_generated_{{ workshop }}/.container_id"
+          line: "{{ container_id_docker.stdout }}"
+          create: yes
+        tags:
+          - deploy-bookbag
         when: destroy_lab is not defined
 
       when: docker is defined
@@ -260,7 +280,7 @@
     - name: podman build
       block:
       - name: build bookbag (podman)
-        command: "buildah bud -t {{ workshop }} ."
+        command: "podman build -t {{ workshop }} ."
         args:
           chdir: "{{ workshop }}"
         tags:
@@ -273,7 +293,6 @@
           - destroy-bookbag
           - deploy-bookbag
         with_file: "/tmp/ansible_generated_{{ workshop }}/.container_id"
-        register: container_id
         ignore_errors: True
 
       - name: start bookbag documentation (podman)
@@ -283,31 +302,31 @@
           executable: /bin/bash
         tags:
           - deploy-bookbag
-        register: container_id
+        register: container_id_podman
+        when: destroy_lab is not defined
+
+      - debug:
+          var: container_id_podman
+        tags:
+          - deploy-bookbag
+
+      - name: delete container id file
+        file:
+          path: "/tmp/ansible_generated_{{ workshop }}/.container_id"
+          state: absent
+        tags:
+          - deploy-bookbag
+
+      - name: save container id
+        lineinfile:
+          path:  "/tmp/ansible_generated_{{ workshop }}/.container_id"
+          line: "{{ container_id_podman.stdout }}"
+          create: yes
+        tags:
+          - deploy-bookbag
         when: destroy_lab is not defined
 
       when: podman is defined
-
-    - debug:
-        var: container_id
-      tags:
-        - deploy-bookbag
-
-    - name: delete container id file
-      file:
-        path: "/tmp/ansible_generated_{{ workshop }}/.container_id"
-        state: absent
-      tags:
-        - deploy-bookbag
-
-    - name: save container id
-      lineinfile:
-        path:  "/tmp/ansible_generated_{{ workshop }}/.container_id"
-        line: "{{ container_id.stdout }}"
-        create: yes
-      tags:
-        - deploy-bookbag
-      when: destroy_lab is not defined
 
     - debug:
         msg: "Access the bookbag documentation on http://localhost:10080"
