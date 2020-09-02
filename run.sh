@@ -22,7 +22,7 @@ esac
 
 case $2 in
   "")
-    ansible-playbook --ssh-extra-args "-F ssh_config" -e workshop="rhel-custom-security-content" "$1=true" main.yml
+    ansible-playbook --ssh-extra-args "-F ssh_config" -e workshop="rhel-custom-security-content" -e "$1=true" main.yml
     ;;
 
   "rhel-security")
